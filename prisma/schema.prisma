@@ -1,0 +1,49 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Event {
+  id          String      @id @default(uuid())
+  title       String
+  description String?
+  date        DateTime
+  location    String
+  status      EventStatus @default(DRAFT)
+
+  participants Participant[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+}
+
+model Participant {
+  id        String @id @default(uuid())
+  name      String
+  email     String
+  status    ParticipantStatus @default(REGISTERED)
+
+  eventId   String
+  event     Event @relation(fields: [eventId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@unique([eventId, email])
+}
+
+enum EventStatus {
+  DRAFT
+  PUBLISHED
+  CANCELLED
+}
+
+enum ParticipantStatus {
+  REGISTERED
+  ATTENDED
+  CANCELLED
+}
